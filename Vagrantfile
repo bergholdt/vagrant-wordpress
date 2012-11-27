@@ -48,7 +48,7 @@ Vagrant::Config.run do |config|
       },
 
       "wordpress" => {
-        "version" => "latest"
+        "version" => "latest",
         "db" => {
           "database" => "wordpress",
           "user"     => "wordpress",
