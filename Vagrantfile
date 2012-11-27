@@ -4,11 +4,11 @@ Vagrant::Config.run do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "lucid32"
+  config.vm.box = "precise64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
   # Boot with a GUI so you can see the screen. (Default is headless)
   # config.vm.boot_mode = :gui
@@ -25,23 +25,30 @@ Vagrant::Config.run do |config|
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
   # folder, and the third is the path on the host to the actual folder.
-  config.vm.share_folder "wordpress", "/var/www/wordpress",
-    "./wordpress"
+  config.vm.share_folder "wordpress", "/var/www/wordpress", "./wordpress"
+  config.vm.share_folder "wp-content", "/var/www/wordpress/wp-content", "./wp-content"
 
   # Enable provisioning with chef solo, specifying a cookbooks path (relative
   # to this Vagrantfile), and adding some recipes and/or roles.
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = "cookbooks"
     chef.add_recipe "apt"
+    chef.add_recipe "mysql::ruby"
     chef.add_recipe "wordpress"
 
     chef.json.merge!(
       "mysql" => {
-        "server_root_password" => "",
-        "allow_remote_root"    => true
+        "server_debian_password" => "wordpress",
+        "server_root_password"   => "wordpress",
+        "server_repl_password"   => "wordpress",
+        "allow_remote_root"      => true,
+        "client" => {
+          "packages" => ["build-essential", "mysql-client", "libmysqlclient-dev"]
+        }
       },
 
       "wordpress" => {
+        "version" => "latest"
         "db" => {
           "database" => "wordpress",
           "user"     => "wordpress",
